@@ -39,7 +39,7 @@ const routeNames: Record<Portal, Record<string, string | undefined>> = {
     cases: 'company-cases',
     documents: 'company-documents',
   },
-  SYSTEM: { overview: 'system-admin-overview' },
+  SYSTEM: { overview: 'system-admin-overview', 'admin-permissions': 'system-admin-permissions' },
 }
 
 const labels = computed(() => ({
@@ -121,7 +121,10 @@ const companies = computed(() =>
 )
 const nav = computed<[string, string][]>(() =>
   session.activePortal === 'SYSTEM'
-    ? [['overview', labels.value.overview]]
+    ? [
+        ['overview', labels.value.overview],
+        ['admin-permissions', t('Behörigheter')],
+      ]
     : session.isCompany
       ? [
           ['overview', labels.value.overview],

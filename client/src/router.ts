@@ -12,6 +12,7 @@ export type Page =
   | 'plans'
   | 'cases'
   | 'add-employee'
+  | 'admin-permissions'
 export type PortalRoute = 'PRIVATE' | 'COMPANY' | 'SYSTEM'
 
 declare module 'vue-router' {
@@ -97,6 +98,12 @@ const routes: RouteRecordRaw[] = [
     name: 'system-admin-overview',
     component: PortalView,
     meta: { portal: 'SYSTEM', page: 'overview', roles: ['SYSTEM_ADMIN'] },
+  },
+  {
+    path: '/systemadmin/permissions',
+    name: 'system-admin-permissions',
+    component: PortalView,
+    meta: { portal: 'SYSTEM', page: 'admin-permissions', roles: ['SYSTEM_ADMIN'] },
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
