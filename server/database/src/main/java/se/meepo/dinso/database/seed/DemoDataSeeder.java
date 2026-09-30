@@ -8,6 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import se.meepo.dinso.database.entity.*;
 import se.meepo.dinso.database.repository.DemoProfileRepository;
 import se.meepo.dinso.service.CustomerId;
+import se.meepo.dinso.service.DemoRole;
+import se.meepo.dinso.service.PermissionLevel;
+import se.meepo.dinso.service.PermissionType;
+import se.meepo.dinso.service.PortalType;
 
 @Component
 public class DemoDataSeeder {
@@ -47,7 +51,10 @@ public class DemoDataSeeder {
     entities.persist(
         new DocumentEntity(
             customer, elin, null, "Årsbesked 2025", "ANNUAL_STATEMENT", today.minusMonths(8)));
-    if (catalog.employeeCount() > 0) seedCompanies(customer, catalog, today, elin);
+    if (catalog.employeeCount() > 0) {
+      seedCompanies(customer, catalog, today, elin);
+      seedProfilePermissions(customer);
+    }
     entities.persist(
         new DemoEventEntity(
             customer, clock.instant(), "SEED_COMPLETE", "Demo-data är klar för " + customer));
@@ -273,6 +280,47 @@ public class DemoDataSeeder {
                   + companyType
                   + "."));
     }
+  }
+
+  private void seedProfilePermissions(CustomerId customer) {
+        // Find all profiles with COMPANY portal or SYSTEM_ADMIN role
+        var profileList = profiles.findByCustomerId(customer).stream()
+            .filter(profile -> 
+                profile.getPortal() == PortalType.COMPANY || 
+                profile.getRole() == DemoRole.SYSTEM_ADMIN)
+            .toList();
+        
+        var permissionTypes = PermissionType.values();
+        
+        for (var profile : profileList) {
+            // Find companies this profile is authorized for
+            var companyAuthorizations = entities.createQuery(
+                "select a.company from CompanyAuthorizationEntity a where a.profile = :profile",
+                CompanyEntity.class)
+                .setParameter("profile", profile)
+                .getResultList();
+            
+            for (var company : companyAuthorizations) {
+                PermissionLevel level = PermissionLevel.NOT_ALLOWED;
+                
+                // Determine permission level based on role
+                if (profile.getRole() == DemoRole.COMPANY_ADMIN) {
+                    level = PermissionLevel.WRITE;
+                } else if (profile.getRole() == DemoRole.COMPANY_VIEWER) {
+                    level = PermissionLevel.READ;
+                } else if (profile.getRole() == DemoRole.SYSTEM_ADMIN) {
+                    level = PermissionLevel.WRITE;
+                }
+                
+                // Skip if no appropriate level
+                if (level == PermissionLevel.NOT_ALLOWED) continue;
+                
+                // Seed all permission types for this profile-company pair
+                for (var pt : permissionTypes) {
+                    entities.persist(new ProfilePermissionEntity(profile, company, pt, level));
+                }
+            }
+        }
   }
 
   private record CaseSeed(String title, String status, long daysUntilDue) {}
