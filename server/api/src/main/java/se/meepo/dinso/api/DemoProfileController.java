@@ -30,13 +30,6 @@ public class DemoProfileController {
         .toList();
   }
 
-  @GetMapping("/all-profiles")
-  public List<DemoProfile> allProfiles() {
-    return profiles.findAll().stream()
-        .map(profile -> profile.toDomain())
-        .toList();
-  }
-
   @GetMapping("/config")
   public CustomerRules config() {
     return rules;
