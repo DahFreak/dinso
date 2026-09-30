@@ -10,4 +10,8 @@ public interface DemoProfileRepository extends JpaRepository<DemoProfileEntity, 
 
   Optional<DemoProfileEntity> findByCustomerIdAndExternalId(
       CustomerId customerId, String externalId);
+  
+  Optional<DemoProfileEntity> findByExternalId(String externalId);
+  
+  List<DemoProfileEntity> findAll();
 }

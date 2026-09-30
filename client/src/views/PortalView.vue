@@ -13,6 +13,7 @@ import PlansView from './PlansView.vue'
 import CasesView from './CasesView.vue'
 import ActivityView from './ActivityView.vue'
 import SystemAdminView from './SystemAdminView.vue'
+import AdminPermissionsView from './AdminPermissionsView.vue'
 import AddEmployeeFlow from '../components/AddEmployeeFlow.vue'
 import CaseModal from '../components/CaseModal.vue'
 import DemoNotice from '../components/DemoNotice.vue'
@@ -145,8 +146,11 @@ const finishEmployee = async (draft: {
 </script>
 
 <template>
+  <AdminPermissionsView
+    v-if="page === 'admin-permissions'"
+  />
   <SystemAdminView
-    v-if="session.activePortal === 'SYSTEM'"
+    v-else-if="session.activePortal === 'SYSTEM'"
     :title="t('Systemadmin')"
     :description="systemAdminDescription"
     :panel-title="t('Företagsadministratörer')"
