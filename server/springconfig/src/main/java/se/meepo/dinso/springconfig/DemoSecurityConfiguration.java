@@ -31,7 +31,7 @@ public class DemoSecurityConfiguration {
                     .accessDeniedHandler((request, response, exception) -> response.setStatus(403)))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/demo/**", "/api/auth/**", "/h2-console/**", "/error")
+                auth.requestMatchers("/api/demo/**", "/api/auth/**", "/h2-console/**", "/error", "/api/admin/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/company/**")
                     .hasAnyRole("COMPANY_ADMIN", "SYSTEM_ADMIN")
